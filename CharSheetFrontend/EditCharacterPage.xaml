@@ -1,0 +1,68 @@
+﻿<Page x:Class="CharSheetFrontend.EditCharacterPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:CharSheetFrontend"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="EditCharacterPage">
+
+    <Page.Resources>
+
+        <DataTemplate x:Key="ListSpecTemplate">
+            <local:ListSpecControl
+                Spec="{Binding}" />
+        </DataTemplate>
+
+        <local:SpecTemplateSelector
+            x:Key="SpecTemplateSelector"
+            ListSpecTemplate="{StaticResource ListSpecTemplate}" />
+
+    </Page.Resources>
+
+    <TabControl Name="levelTabControl" TabStripPlacement="Left" ItemsSource="{Binding}" SelectionChanged="levelTabControl_SelectionChanged">
+        <TabControl.ItemTemplate>
+            <DataTemplate>
+                <TextBlock Text="{Binding Level, StringFormat='Level {0}'}" />
+            </DataTemplate>
+        </TabControl.ItemTemplate>
+        <TabControl.ContentTemplate>
+            <DataTemplate>
+                <StackPanel>
+                    <TextBlock Style="{StaticResource Header}">You need to make the following choices:</TextBlock>
+
+                    <!-- Render each option category. -->
+                    <ItemsControl ItemsSource="{Binding OptionCategories}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource Header2}" Text="{Binding DisplayOriginCategory, StringFormat='From {0}:'}" />
+
+                                    <!-- Render each option. -->
+                                    <ItemsControl ItemsSource="{Binding Options}">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel>
+                                                    <TextBlock Text="{Binding DisplayId}" />
+                                                    <!-- Render spec. -->
+
+                                                    
+                                                    <ContentControl Content="{Binding Spec}"
+                                                                    ContentTemplateSelector="{StaticResource SpecTemplateSelector}">
+                                                    </ContentControl>
+                                                    
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </DataTemplate>
+        </TabControl.ContentTemplate>
+    </TabControl>
+</Page>

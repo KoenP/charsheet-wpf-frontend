@@ -1,0 +1,23 @@
+﻿<Application x:Class="CharSheetFrontend.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:local="clr-namespace:CharSheetFrontend"
+             StartupUri="MainWindow.xaml">
+    <Application.Resources>
+        <ResourceDictionary>
+
+            <Style x:Key="Header" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="18" />
+                <Setter Property="FontWeight" Value="ExtraBold" />
+                <Setter Property="Margin" Value="0,15,0,8" />
+            </Style>
+
+            <Style x:Key="Header2" TargetType="TextBlock">
+                <Setter Property="FontSize" Value="16" />
+                <Setter Property="FontWeight" Value="ExtraBold" />
+                <Setter Property="Margin" Value="0,12,0,6" />
+            </Style>
+
+        </ResourceDictionary>
+    </Application.Resources>
+</Application>

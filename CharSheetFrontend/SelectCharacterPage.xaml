@@ -1,0 +1,30 @@
+﻿<Page x:Class="CharSheetFrontend.SelectCharacterPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:CharSheetFrontend"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="SelectCharacterPage">
+    <StackPanel>
+        <TextBlock Style="{StaticResource Header}">Create a new character...</TextBlock>
+        <StackPanel Orientation="Horizontal">
+            <TextBox x:Name="newCharacterNameTextBox"  KeyDown="NewCharacterNameTextBox_KeyDown" Width="200"></TextBox>
+            <Button Click="CreateCharacterButton_Click">Create</Button>
+        </StackPanel>
+        <TextBlock Style="{StaticResource Header}">... Or select an existing character:</TextBlock>
+        <ItemsControl Name="charList">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <StackPanel Orientation="Vertical" />
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Button Content="{Binding Name}" Tag="{Binding}" Click="SelectCharacterButton_Click" Width="100" HorizontalAlignment="Left" />
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+    </StackPanel>
+</Page>
