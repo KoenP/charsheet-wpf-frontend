@@ -15,11 +15,10 @@ namespace CharSheetFrontend
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
-            JToken root = ((JObject)item).Root;
+            JToken root = ((Option)item).Spec.Root;
             switch (root["spectype"].ToObject<string>())
             {
                 case "list":
-                    var specOptions = root["list"].ToObject<List<ListSpecOption>>();
                     return ListSpecTemplate;
                 default:
                     return null;

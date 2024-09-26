@@ -50,7 +50,7 @@ namespace CharSheetFrontend
                     Level = lvl,
                     OptionCategories = CategorizeOptions(editPageData.Options[lvl]),
                 });
-            levelTabControl.SelectedIndex = 1;
+            levelTabControl.SelectedIndex = 2;
         }
 
         private void levelTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -100,5 +100,11 @@ namespace CharSheetFrontend
         ///  There are different kinds of Spec which need to be parsed differently, so we postpone parsing them.
         /// </summary>
         [JsonProperty("spec")] public JObject Spec { get; set; }
+
+        /// <summary>
+        ///  There are different kinds of Choice which need to be parsed differently (the structure depends on the Spec),
+        ///  so we postpone parsing them.
+        /// </summary>
+        [JsonProperty("choice")] public JToken Choice { get; set; }
     }
 }

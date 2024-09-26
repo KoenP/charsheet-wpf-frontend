@@ -64,9 +64,4 @@ namespace CharSheetFrontend
     }
 
     // TODO move this somewhere sensible.
-    public class ListSpecOption
-    {
-        public string Opt { get; set; }
-        public string Desc { get; set; }
-    }
 }
