@@ -12,6 +12,7 @@ namespace CharSheetFrontend
     public class SpecTemplateSelector : DataTemplateSelector
     {
         public DataTemplate ListSpecTemplate { get; set; }
+        public DataTemplate FromSpecTemplate { get; set; }
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
@@ -20,8 +21,10 @@ namespace CharSheetFrontend
             {
                 case "list":
                     return ListSpecTemplate;
-                ////case "from":
-                //    return FromSpecTemplate;
+                case "unique_from":
+                    return FromSpecTemplate;
+                case "from":
+                    return FromSpecTemplate;
                 default:
                     return null;
             }

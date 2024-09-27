@@ -1,9 +1,6 @@
-﻿using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
-using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -18,23 +15,26 @@ using System.Windows.Shapes;
 
 namespace CharSheetFrontend
 {
-    public partial class ListSpecControl : UserControl
+    /// <summary>
+    /// Interaction logic for SpecTemplateSelectorControl.xaml
+    /// </summary>
+    public partial class SpecTemplateSelectorControl : UserControl
     {
         ////////////////////////////////////////////////////////////////////////////////
         // Fields.
         public static readonly DependencyProperty OptionProperty =
-            DependencyProperty.Register("Option", typeof(Option), typeof(ListSpecControl),
+            DependencyProperty.Register("Option", typeof(Option), typeof(SpecTemplateSelectorControl),
                 new PropertyMetadata(null, OnOptionChanged));
 
         public Option Option
         {
-            get => (Option) GetValue(OptionProperty);
+            get => (Option)GetValue(OptionProperty);
             set => SetValue(OptionProperty, value);
         }
 
         ////////////////////////////////////////////////////////////////////////////////
         // Constructor.
-        public ListSpecControl()
+        public SpecTemplateSelectorControl()
         {
             InitializeComponent();
         }
@@ -43,30 +43,20 @@ namespace CharSheetFrontend
         // Methods.
         private static void OnOptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
-            var control = (ListSpecControl)d;
+            var control = (SpecTemplateSelectorControl)d;
             var newOption = (Option)e.NewValue;
             control.OnOptionChanged(newOption);
         }
-
         protected void OnOptionChanged(Option newOption)
         {
-            var listSpecOptions = newOption.Spec.Root["list"].ToObject<List<ListSpecOption>>();
-            comboBox.Items.Clear();
-            foreach (var listSpecOption in listSpecOptions)
-            {
-                comboBox.Items.Add(new ComboBoxItem()
-                {
-                    Content = listSpecOption.Opt,
-                    IsSelected = newOption.Choice != null && listSpecOption.Opt == newOption.Choice.ToObject<string>() // TODO the != null is a hack
-                });
-            }
+            contentControl.Content = newOption;
         }
 
         ////////////////////////////////////////////////////////////////////////////////
         // Events and event handlers.
         public static readonly RoutedEvent ChoiceEvent =
             EventManager.RegisterRoutedEvent("ChoiceEvent", RoutingStrategy.Bubble, typeof(RoutedEventHandler),
-                typeof(ListSpecControl));
+                typeof(SpecTemplateSelectorControl));
 
         public event RoutedEventHandler Choice
         {
@@ -74,18 +64,10 @@ namespace CharSheetFrontend
             remove { RemoveHandler(ChoiceEvent, value); }
         }
 
-        private void comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        // I'm not sure whether there is a more convenient way of bubbling up these events than manually re-raising them.
+        private void ListSpecControl_Choice(object sender, RoutedEventArgs e)
         {
-            string choice = (string)((ComboBoxItem)((ComboBox)sender).SelectedItem).Content;
-            RaiseEvent(new ChoiceEventArgs(ChoiceEvent, Option.Origin, Option.Id, choice));
-            // TODO error handling
+            RaiseEvent(new ChoiceEventArgs(ChoiceEvent, (ChoiceEventArgs)e));
         }
-    }
-
-    // TODO move class
-    public class ListSpecOption
-    {
-        public string Opt { get; set; }
-        // TODO desc
     }
 }

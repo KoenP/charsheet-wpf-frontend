@@ -8,19 +8,6 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="EditCharacterPage">
 
-    <Page.Resources>
-        <!-- User control templates for Specs. -->
-        <DataTemplate x:Key="ListSpecTemplate">
-            <local:ListSpecControl Option="{Binding}" Choice="ListSpecControl_Choice" />
-        </DataTemplate>
-
-        <!-- Select the appropriate Spec template. -->
-        <local:SpecTemplateSelector
-            x:Key="SpecTemplateSelector"
-            ListSpecTemplate="{StaticResource ListSpecTemplate}" />
-
-    </Page.Resources>
-
     <TabControl Name="levelTabControl" TabStripPlacement="Left" ItemsSource="{Binding}">
         <TabControl.ItemTemplate>
             <DataTemplate>
@@ -48,9 +35,15 @@
                                                         <TextBlock Text="{Binding DisplayId}" />
 
                                                         <!-- Render spec. -->
-                                                        <ContentControl Content="{Binding}"
+                                                        <!-- TODO replace with control -->
+
+                                                        <local:SpecTemplateSelectorControl
+                                                            Option="{Binding}"
+                                                            Choice="ListSpecControl_Choice"
+                                                        />
+                                                        <!--<ContentControl Content="{Binding}"
                                                                         ContentTemplateSelector="{StaticResource SpecTemplateSelector}">
-                                                        </ContentControl>
+                                                        </ContentControl>-->
 
                                                     </StackPanel>
                                                 </DataTemplate>

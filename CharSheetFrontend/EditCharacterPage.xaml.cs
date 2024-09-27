@@ -83,6 +83,11 @@ namespace CharSheetFrontend
             await _httpClient.PostAsync(uri, null);
             LoadEditPageData();
         }
+
+        private void FromSpecControl_Choice(object sender, RoutedEventArgs e)
+        {
+
+        }
     }
 
     public class EditPageData

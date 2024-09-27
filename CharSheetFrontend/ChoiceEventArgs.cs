@@ -20,5 +20,13 @@ namespace CharSheetFrontend
             Id = id;
             Choice = choice;
         }
+
+        public ChoiceEventArgs(RoutedEvent routedEvent, ChoiceEventArgs args)
+            : base(routedEvent)
+        {
+            Origin = args.Origin;
+            Id = args.Id;
+            Choice = args.Choice;
+        }
     }
 }
