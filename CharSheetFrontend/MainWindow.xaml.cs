@@ -22,12 +22,11 @@ namespace CharSheetFrontend
     /// </summary>
     public partial class MainWindow : NavigationWindow
     {
-
         public MainWindow()
         {
             InitializeComponent();
             var httpClient = ((App)Application.Current).HttpClient;
-            this.NavigationService.Navigate(new SelectCharacterPage(httpClient));
+            NavigationService.Navigate(new SelectCharacterPage(httpClient));
         }
 
     }

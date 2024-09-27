@@ -2,6 +2,7 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -25,22 +26,20 @@ namespace CharSheetFrontend
     /// </summary>
     public partial class EditCharacterPage : Page
     {
-        private readonly Character character;
-        private readonly HttpClient httpClient;
+        private readonly Character _character;
+        private readonly HttpClient _httpClient;
 
         public EditCharacterPage(HttpClient httpClient, Character character)
         {
-            this.character = character;
+            _character = character;
+            _httpClient = httpClient;
             InitializeComponent();
-
-
-            this.httpClient = httpClient;
             LoadEditPageData();
         }
 
         private async void LoadEditPageData()
         {
-            string editPageDataStr = await httpClient.GetStringAsync($"api/character/{character.CharId}/edit_character_page");
+            string editPageDataStr = await _httpClient.GetStringAsync($"api/character/{_character.CharId}/edit_character_page");
             EditPageData editPageData = JsonConvert.DeserializeObject<EditPageData>(editPageDataStr);
 
             // int charLevel = editPageData.Options.Keys.Max(); // TODO error handling
@@ -50,17 +49,18 @@ namespace CharSheetFrontend
                     Level = lvl,
                     OptionCategories = CategorizeOptions(editPageData.Options[lvl]),
                 });
-            levelTabControl.SelectedIndex = 2;
+            levelTabControl.SelectedIndex = 2; // TODO
         }
 
-        private void levelTabControl_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-
-        }
-
+        /// <summary>
+        /// Group options by category, and order the categories by ascending category index.
+        /// </summary>
+        /// <param name="options"></param>
+        /// <returns></returns>
         static private List<OptionCategory> CategorizeOptions(IEnumerable<Option> options)
         {
             return options
+                .OrderBy(o => o.OriginCategoryIndex)
                 .GroupBy(o => o.DisplayOriginCategory)
                 .Select(grouping => new OptionCategory() {
                     DisplayOriginCategory = grouping.Key,
@@ -75,6 +75,14 @@ namespace CharSheetFrontend
             public List<OptionCategory> OptionCategories { get; set; }
         }
 
+        async private void ListSpecControl_Choice(object sender, RoutedEventArgs e)
+        {
+            // TODO type conversion error handling.
+            ChoiceEventArgs args = ((ChoiceEventArgs)e);
+            string uri = $"api/character/{_character.CharId}/choice?source={args.Origin}&id={args.Id}&choice={args.Choice}";
+            await _httpClient.PostAsync(uri, null);
+            LoadEditPageData();
+        }
     }
 
     public class EditPageData
@@ -92,6 +100,7 @@ namespace CharSheetFrontend
     {
         public string Id { get; set; }
         [JsonProperty("display_id")] public string DisplayId { get; set; }
+        [JsonProperty("origin")] public string Origin { get; set; }
         [JsonProperty("origin_category")] public string OriginCategory { get; set; }
         [JsonProperty("display_origin_category")] public string DisplayOriginCategory { get; set; }
         [JsonProperty("origin_category_index")] public int OriginCategoryIndex { get; set; }

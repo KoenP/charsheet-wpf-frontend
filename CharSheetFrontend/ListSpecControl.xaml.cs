@@ -1,7 +1,9 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -16,52 +18,81 @@ using System.Windows.Shapes;
 
 namespace CharSheetFrontend
 {
-    /// <summary>
-    /// Interaction logic for ListSpec.xaml
-    /// </summary>
     public partial class ListSpecControl : UserControl
     {
-        public static readonly DependencyProperty SpecProperty =
-            DependencyProperty.Register("Spec", typeof(JObject), typeof(ListSpecControl));
+        ////////////////////////////////////////////////////////////////////////////////
+        // Fields.
+        private readonly HttpClient _httpClient;
+        private readonly Character _character;
 
-        public JObject Spec
-        {
-            get { return (JObject)GetValue(SpecProperty); }
-            set
-            {
-                SetValue(SpecProperty, value);
-            }
-        }
-
-        public List<ListSpecOption> ListSpec
-        {
-            get
-            {
-                return Spec != null ? Spec.Root["list"].ToObject<List<ListSpecOption>>() : null;
-            }
-        }
-
-        /*
         public static readonly DependencyProperty OptionProperty =
-            DependencyProperty.Register("Option", typeof(Option), typeof(ListSpecControl), new PropertyMetadata(new Option()));
+            DependencyProperty.Register("Option", typeof(Option), typeof(ListSpecControl),
+                new PropertyMetadata(null, OnOptionChanged));
 
-        public JObject Option
+        public Option Option
         {
-            get { return (JObject)GetValue(OptionProperty); }
-            set { SetValue(OptionProperty, value); }
+            get => (Option) GetValue(OptionProperty);
+            set => SetValue(OptionProperty, value);
         }
-        */
 
+        ////////////////////////////////////////////////////////////////////////////////
+        // Constructor.
 
         public ListSpecControl()
         {
             InitializeComponent();
-            comboBox.DataContext = ListSpec;
-            // this.listSpec = listSpec;
-            // comboBox.ItemsSource = listSpec;
+            App app = ((App)Application.Current);
+            _httpClient = app.HttpClient;
         }
 
+        ////////////////////////////////////////////////////////////////////////////////
+        // Methods.
+
+        private static void OnOptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        {
+            var control = (ListSpecControl)d;
+            var newOption = (Option)e.NewValue;
+            control.OnOptionChanged(newOption);
+        }
+
+        protected void OnOptionChanged(Option newOption)
+        {
+            var listSpecOptions = newOption.Spec.Root["list"].ToObject<List<ListSpecOption>>();
+            comboBox.Items.Clear();
+            foreach (var listSpecOption in listSpecOptions)
+            {
+                comboBox.Items.Add(new ComboBoxItem()
+                {
+                    Content = listSpecOption.Opt,
+                    IsSelected = listSpecOption.Opt == newOption.Choice.ToObject<string>()
+                });
+            }
+        }
+
+        ////////////////////////////////////////////////////////////////////////////////
+        // Events and event handlers.
+        public static readonly RoutedEvent ChoiceEvent =
+            EventManager.RegisterRoutedEvent("ChoiceEvent", RoutingStrategy.Bubble, typeof(RoutedEventHandler),
+                typeof(ListSpecControl));
+
+        public event RoutedEventHandler Choice
+        {
+            add { AddHandler(ChoiceEvent, value); }
+            remove { RemoveHandler(ChoiceEvent, value); }
+        }
+
+        private void comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            string choice = (string)((ComboBoxItem)((ComboBox)sender).SelectedItem).Content;
+            RaiseEvent(new ChoiceEventArgs(ChoiceEvent, Option.Origin, Option.Id, choice));
+            // TODO error handling
+        }
     }
 
-    // TODO move this somewhere sensible.
+    // TODO move class
+    public class ListSpecOption
+    {
+        public string Opt { get; set; }
+        // TODO desc
+    }
 }

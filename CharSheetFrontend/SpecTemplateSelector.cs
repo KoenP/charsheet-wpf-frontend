@@ -20,6 +20,8 @@ namespace CharSheetFrontend
             {
                 case "list":
                     return ListSpecTemplate;
+                ////case "from":
+                //    return FromSpecTemplate;
                 default:
                     return null;
             }
