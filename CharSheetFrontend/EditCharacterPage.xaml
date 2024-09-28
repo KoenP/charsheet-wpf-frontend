@@ -39,12 +39,8 @@
 
                                                         <local:SpecTemplateSelectorControl
                                                             Option="{Binding}"
-                                                            Choice="ListSpecControl_Choice"
+                                                            Choice="SpecControl_Choice"
                                                         />
-                                                        <!--<ContentControl Content="{Binding}"
-                                                                        ContentTemplateSelector="{StaticResource SpecTemplateSelector}">
-                                                        </ContentControl>-->
-
                                                     </StackPanel>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>

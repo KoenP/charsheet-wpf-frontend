@@ -65,7 +65,7 @@ namespace CharSheetFrontend
         }
 
         // I'm not sure whether there is a more convenient way of bubbling up these events than manually re-raising them.
-        private void ListSpecControl_Choice(object sender, RoutedEventArgs e)
+        private void SpecControl_Choice(object sender, RoutedEventArgs e)
         {
             RaiseEvent(new ChoiceEventArgs(ChoiceEvent, (ChoiceEventArgs)e));
         }

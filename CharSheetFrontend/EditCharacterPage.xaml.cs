@@ -75,18 +75,13 @@ namespace CharSheetFrontend
             public List<OptionCategory> OptionCategories { get; set; }
         }
 
-        async private void ListSpecControl_Choice(object sender, RoutedEventArgs e)
+        async private void SpecControl_Choice(object sender, RoutedEventArgs e)
         {
             // TODO type conversion error handling.
             ChoiceEventArgs args = ((ChoiceEventArgs)e);
             string uri = $"api/character/{_character.CharId}/choice?source={args.Origin}&id={args.Id}&choice={args.Choice}";
-            await _httpClient.PostAsync(uri, null);
+            HttpResponseMessage response = await _httpClient.PostAsync(uri, null);
             LoadEditPageData();
-        }
-
-        private void FromSpecControl_Choice(object sender, RoutedEventArgs e)
-        {
-
         }
     }
 
@@ -120,5 +115,7 @@ namespace CharSheetFrontend
         ///  so we postpone parsing them.
         /// </summary>
         [JsonProperty("choice")] public JToken Choice { get; set; }
+
+        public Func<string, string> MkChoice { get; set; } = s => s;
     }
 }

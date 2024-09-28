@@ -9,11 +9,11 @@
     <UserControl.Resources>
         <!-- User control templates for Specs. -->
         <DataTemplate x:Key="ListSpecTemplate">
-            <local:ListSpecControl Option="{Binding}" Choice="ListSpecControl_Choice" />
+            <local:ListSpecControl Option="{Binding}" Choice="SpecControl_Choice" />
         </DataTemplate>
 
         <DataTemplate x:Key="FromSpecTemplate">
-            <local:FromSpecControl Option="{Binding}" />
+            <local:FromSpecControl Option="{Binding}" Choice="SpecControl_Choice" />
         </DataTemplate>
 
         <!-- Select the appropriate Spec template. -->

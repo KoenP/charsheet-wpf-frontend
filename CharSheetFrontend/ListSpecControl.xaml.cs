@@ -77,7 +77,8 @@ namespace CharSheetFrontend
         private void comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string choice = (string)((ComboBoxItem)((ComboBox)sender).SelectedItem).Content;
-            RaiseEvent(new ChoiceEventArgs(ChoiceEvent, Option.Origin, Option.Id, choice));
+            string newChoice = Option.MkChoice(choice);
+            RaiseEvent(new ChoiceEventArgs(ChoiceEvent, Option.Origin, Option.Id, newChoice));
             // TODO error handling
         }
     }
