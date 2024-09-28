@@ -18,8 +18,8 @@
                 <DataTemplate>
                     <local:SpecTemplateSelectorControl
                         Option="{Binding}"
-                        Choice="SpecTemplateSelectorControl_Choice"
                     />
+                        <!--Choice="SpecTemplateSelectorControl_Choice"-->
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

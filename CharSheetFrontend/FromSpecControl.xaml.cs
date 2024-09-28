@@ -70,16 +70,19 @@ namespace CharSheetFrontend
             ImmutableList<string> choices = ImmutableList
                 .ToImmutableList(newOption.Choice.ToObject<List<string>>() ?? []);
 
+            
+
             for (int i = 0; i < num; i++)
             {
                 // TODO maybe change this datatype everywhere.
                 Option option = new Option()
-                { 
-                    Choice = null,
+                {
+                    Choice = i < choices.Count ? choices.ElementAt(i) : null,
                     Origin = newOption.Origin,
                     Id = newOption.Id,
                     Spec = fromSpecOption.Spec,
-                    MkChoice = addToChoices(i, choices)
+                    MkChoice = addToChoices(i, choices),
+                    IsEnabled = i <= choices.Count
                 };
                 itemsControl.Items.Add(option);
             }
@@ -108,11 +111,9 @@ namespace CharSheetFrontend
             remove { RemoveHandler(ChoiceEvent, value); }
         }
 
-        private void SpecTemplateSelectorControl_Choice(object sender, RoutedEventArgs e)
-        {
-
-            //RaiseEvent(new ChoiceEventArgs(ChoiceEvent, (ChoiceEventArgs)e));
-        }
+        // TODO I don't understand why I don't need to explicitly re-raise the event
+        // here (doing so doubles the event), but I do need to re-raise it in
+        // SpecTemplateSelectorControl
     }
 
     public class FromSpecOption

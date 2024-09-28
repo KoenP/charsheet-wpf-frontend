@@ -52,12 +52,13 @@ namespace CharSheetFrontend
         {
             var listSpecOptions = newOption.Spec.Root["list"].ToObject<List<ListSpecOption>>();
             comboBox.Items.Clear();
+            comboBox.IsEnabled = newOption.IsEnabled;
             foreach (var listSpecOption in listSpecOptions)
             {
                 comboBox.Items.Add(new ComboBoxItem()
                 {
                     Content = listSpecOption.Opt,
-                    IsSelected = newOption.Choice != null && listSpecOption.Opt == newOption.Choice.ToObject<string>() // TODO the != null is a hack
+                    IsSelected = newOption.Choice != null && listSpecOption.Opt == newOption.Choice.ToObject<string>(), // TODO the != null is a hack
                 });
             }
         }

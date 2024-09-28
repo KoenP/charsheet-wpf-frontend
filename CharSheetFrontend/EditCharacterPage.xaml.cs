@@ -117,5 +117,7 @@ namespace CharSheetFrontend
         [JsonProperty("choice")] public JToken Choice { get; set; }
 
         public Func<string, string> MkChoice { get; set; } = s => s;
+
+        public bool IsEnabled { get; set; } = true;
     }
 }
