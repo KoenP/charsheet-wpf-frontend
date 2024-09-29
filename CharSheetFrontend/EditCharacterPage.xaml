@@ -12,7 +12,8 @@
         <local:OptionToSpecControlArgsConverter x:Key="OptionToSpecControlArgsConverter" />
     </Page.Resources>
 
-    <TabControl Name="levelTabControl" TabStripPlacement="Left" ItemsSource="{Binding}">
+    <!-- We have a tab for each character level. The tab contents contain the options for that character level. -->
+    <TabControl Name="levelTabControl" TabStripPlacement="Left">
         <TabControl.ItemTemplate>
             <DataTemplate>
                 <TextBlock Text="{Binding Level, StringFormat='Level {0}'}" />
@@ -24,32 +25,28 @@
                     <StackPanel>
                         <TextBlock Style="{StaticResource Header}">You need to make the following choices:</TextBlock>
 
-                        <!-- Render each option category. -->
+                        <!-- For each character level, we have grouped its options into categories. -->
                         <ItemsControl ItemsSource="{Binding OptionCategories}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <StackPanel>
                                         <TextBlock Style="{StaticResource Header2}" Text="{Binding DisplayOriginCategory, StringFormat='From {0}:'}" />
 
-                                        <!-- Render each option. -->
+                                        <!-- Render each option within the category. -->
                                         <ItemsControl ItemsSource="{Binding Options}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
                                                     <StackPanel>
                                                         <TextBlock Text="{Binding DisplayId}" />
 
-                                                        <!-- Render spec. -->
-                                                        <!-- TODO replace with control -->
-
+                                                        <!-- Depending on the "spectype" in the Spec JSON, we need to render different controls -->
                                                         <local:SpecTemplateSelectorControl
                                                             SpecControlArgs="{Binding Converter={StaticResource OptionToSpecControlArgsConverter}}"
-                                                            Choice="SpecControl_Choice"
-                                                        />
+                                                            Choice="SpecControl_Choice" />
                                                     </StackPanel>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
-
                                     </StackPanel>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>

@@ -15,7 +15,7 @@ namespace CharSheetFrontend
         string Id,
         Spec Spec,
         ImmutableList<string> Choice,
-        Func<string,ImmutableList<string>> MkChoiceFn,
+        Func<string,string> MkChoiceFn,
         bool IsEnabled
     )
     {
@@ -26,7 +26,7 @@ namespace CharSheetFrontend
                 option.Id,
                 Spec.FromJToken(option.Spec),
                 JTokenToChoice(option.Choice),
-                choice => [choice],
+                choice => choice,
                 true
             );
         }

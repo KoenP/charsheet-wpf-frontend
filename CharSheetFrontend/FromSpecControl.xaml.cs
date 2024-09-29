@@ -81,13 +81,14 @@ namespace CharSheetFrontend
             }
         }
 
-        static private Func<string, ImmutableList<string>> applyChoice(int i, ImmutableList<string> choices)
+        static private Func<string, string> applyChoice(int i, ImmutableList<string> choices)
         {
             return choice =>
             {
-                return i < choices.Count
+                var newChoices = i < choices.Count
                     ? choices.SetItem(i, choice)
                     : choices.Add(choice);
+                return "[" + string.Join(", ", newChoices) + "]";
             };
         }
 

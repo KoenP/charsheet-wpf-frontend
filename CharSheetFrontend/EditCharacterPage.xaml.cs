@@ -2,6 +2,8 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -28,28 +30,58 @@ namespace CharSheetFrontend
     {
         private readonly Character _character;
         private readonly HttpClient _httpClient;
+        private ObservableCollection<Tab> Tabs { get; set; } = [];
 
         public EditCharacterPage(HttpClient httpClient, Character character)
         {
             _character = character;
             _httpClient = httpClient;
             InitializeComponent();
+            levelTabControl.ItemsSource = Tabs;
             LoadEditPageData();
         }
 
         private async void LoadEditPageData()
         {
+            // TODO delete
             string editPageDataStr = await _httpClient.GetStringAsync($"api/character/{_character.CharId}/edit_character_page");
             EditPageData editPageData = JsonConvert.DeserializeObject<EditPageData>(editPageDataStr);
 
-            // int charLevel = editPageData.Options.Keys.Max(); // TODO error handling
-            levelTabControl.DataContext = editPageData.Options.Keys
+
+            // TODO error handling
+            var newTabs = editPageData.Options.Keys
                 .OrderDescending()
-                .Select(lvl => new Tab {
+                .Select(lvl => new Tab
+                {
                     Level = lvl,
                     OptionCategories = CategorizeOptions(editPageData.Options[lvl]),
                 });
-            levelTabControl.SelectedIndex = 2; // TODO
+            UpdateTabs(newTabs);
+        }
+
+        private void UpdateTabs(IEnumerable<Tab> newTabs)
+        {
+            // If there are fewer new tabs than existing tabs, delete until they match.
+            // The tabs are ordered by descending level, so this will always remove the
+            // highest levels.
+            for (int i = newTabs.Count(); i < Tabs.Count; i++)
+            {
+                Tabs.RemoveAt(0);
+            }
+
+            // If there are more new tabs than current tabs, create extra tabs.
+            // As the tabs are ordered descending, the first new tabs in the sequence
+            // are the ones that need to be added.
+            foreach (var newTab in newTabs.Take(newTabs.Count() - Tabs.Count).Reverse())
+            {
+                Tabs.Insert(0, newTab);
+            }
+
+            // Update the remaining tabs.
+            foreach ((var tab, var newTab) in Tabs.Zip(newTabs.TakeLast(Tabs.Count)))
+            {
+                tab.OptionCategories = newTab.OptionCategories;
+            }
         }
 
         /// <summary>
@@ -64,23 +96,44 @@ namespace CharSheetFrontend
                 .GroupBy(o => o.DisplayOriginCategory)
                 .Select(grouping => new OptionCategory() {
                     DisplayOriginCategory = grouping.Key,
-                    Options = grouping.ToList()
+                    Options = [.. grouping]
                 })
                 .ToList();
         }
 
-        private class Tab
+        private class Tab : INotifyPropertyChanged
         {
             public int Level { get; set; }
-            public List<OptionCategory> OptionCategories { get; set; }
+            private List<OptionCategory> optionCategories;
+            public List<OptionCategory> OptionCategories
+            {
+                get { return optionCategories; }
+                set
+                {
+                    optionCategories = value;
+
+                    // We don't bother actually checking if the tab got modified.
+                    // The contents are re-generated from scratch anyway.
+                    NotifyPropertyChanged("OptionCategories");
+                }
+            }
+
+            public event PropertyChangedEventHandler PropertyChanged;
+
+            public void NotifyPropertyChanged(string propName)
+            {
+                if (PropertyChanged != null)
+                {
+                    PropertyChanged(this, new PropertyChangedEventArgs(propName));
+                }
+            }
         }
 
         async private void SpecControl_Choice(object sender, RoutedEventArgs e)
         {
             // TODO type conversion error handling.
             ChoiceEventArgs args = ((ChoiceEventArgs)e);
-            string formattedChoice = "[" + string.Join(",", args.Choice) + "]";
-            string uri = $"api/character/{_character.CharId}/choice?source={args.Origin}&id={args.Id}&choice={formattedChoice}";
+            string uri = $"api/character/{_character.CharId}/choice?source={args.Origin}&id={args.Id}&choice={args.Choice}";
             HttpResponseMessage response = await _httpClient.PostAsync(uri, null);
             LoadEditPageData();
         }

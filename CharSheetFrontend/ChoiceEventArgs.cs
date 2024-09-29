@@ -12,10 +12,10 @@ namespace CharSheetFrontend
     {
         public readonly string Origin;
         public readonly string Id;
-        public readonly ImmutableList<string> Choice;
+        public readonly string Choice;
 
         public ChoiceEventArgs(RoutedEvent routedEvent, string origin, string id,
-            ImmutableList<string> choice)
+            string choice)
             : base(routedEvent)
         {
             Origin = origin;

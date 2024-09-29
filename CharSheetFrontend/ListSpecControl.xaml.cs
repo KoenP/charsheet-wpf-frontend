@@ -100,7 +100,7 @@ namespace CharSheetFrontend
         private void comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string choice = (string)((ComboBoxItem)((ComboBox)sender).SelectedItem).Content;
-            ImmutableList<string> newChoice = SpecControlArgs.MkChoiceFn(choice);
+            string newChoice = SpecControlArgs.MkChoiceFn(choice);
             RaiseEvent(new ChoiceEventArgs(ChoiceEvent, SpecControlArgs.Origin, SpecControlArgs.Id,
                 newChoice));
             // TODO error handling
