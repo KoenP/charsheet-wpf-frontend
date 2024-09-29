@@ -1,22 +1,10 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Media.TextFormatting;
 using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace CharSheetFrontend
 {
@@ -26,13 +14,13 @@ namespace CharSheetFrontend
     public partial class SelectCharacterPage : Page
     {
 
-        private readonly HttpClient httpClient;
+        private readonly CharSheetHttpClient _client;
 
-        public SelectCharacterPage(HttpClient httpClient)
+        public SelectCharacterPage(CharSheetHttpClient client)
         {
             InitializeComponent();
-            this.httpClient = httpClient;
-            GetCharacterList();
+            _client = client;
+            UpdateCharacterList();
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -40,7 +28,7 @@ namespace CharSheetFrontend
         private void SelectCharacterButton_Click(object sender, RoutedEventArgs e)
         {
             Character character = (Character) ((Button)sender).Tag;
-            NavigationService.Navigate(new EditCharacterPage(httpClient, character));
+            NavigationService.Navigate(new EditCharacterPage(_client, character));
         }
 
         private void CreateCharacterButton_Click(object sender, RoutedEventArgs e)
@@ -55,25 +43,22 @@ namespace CharSheetFrontend
 
         ////////////////////////////////////////////////////////////////////////////////
         // Private helper methods.
-
-        // TODO return task?
         private async void CreateNewCharacter(string name)
         {
             if (name.Length != 0)
             {
-                string uuid = await httpClient.GetStringAsync($"api/create_character?name={HttpUtility.UrlEncode(name)}");
+                string uuid = await _client.PostCreateCharacter(name);
                 Character character = new Character() { CharId = uuid, Name = name };
-                NavigationService.Navigate(new EditCharacterPage(httpClient, character));
+                NavigationService.Navigate(new EditCharacterPage(_client, character));
             } else
             {
                 MessageBox.Show("Please enter a non-empty name.");
             }
         }
 
-        private async void GetCharacterList()
+        private async void UpdateCharacterList()
         {
-            string characters = await httpClient.GetStringAsync("api/list_characters");
-            charList.ItemsSource = JsonConvert.DeserializeObject<List<Character>>(characters);
+            charList.ItemsSource = await _client.GetCharacterList();
         }
     }
 

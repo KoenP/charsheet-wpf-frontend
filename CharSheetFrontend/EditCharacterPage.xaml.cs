@@ -1,25 +1,9 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
-using System.Diagnostics;
-using System.Linq;
 using System.Net.Http;
-using System.Runtime.CompilerServices;
-using System.Security.Cryptography.X509Certificates;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 
 namespace CharSheetFrontend
 {
@@ -29,28 +13,28 @@ namespace CharSheetFrontend
     public partial class EditCharacterPage : Page
     {
         private readonly Character _character;
-        private readonly HttpClient _httpClient;
-        private ObservableCollection<Tab> Tabs { get; set; } = [];
+        private readonly CharSheetHttpClient _client;
+        private ObservableCollection<Tab> Tabs = [];
 
-        public EditCharacterPage(HttpClient httpClient, Character character)
+        public EditCharacterPage(CharSheetHttpClient client, Character character)
         {
             _character = character;
-            _httpClient = httpClient;
+            _client = client;
             InitializeComponent();
             levelTabControl.ItemsSource = Tabs;
             LoadEditPageData();
-            levelTabControl.SelectedIndex = Tabs.Count - 1;
         }
 
         private async void LoadEditPageData()
         {
-            // TODO delete
-            string editPageDataStr = await _httpClient.GetStringAsync($"api/character/{_character.CharId}/edit_character_page");
-            EditPageData editPageData = JsonConvert.DeserializeObject<EditPageData>(editPageDataStr);
+            // Fetch and parse remote data.
+            // I took a bit of a shortcut here and did no proper error handling of JSON parsing.
+            // Note: I should be disabling all inputs until the response arrives and is rendered.
+            // I didn't get around to implementing that.
+            EditPageData editPageData = await _client.GetEditPageData(_character.CharId);
 
-
-            // TODO error handling
             var newTabs = editPageData.Options.Keys
+                // Highest level is the first (top) tab.
                 .OrderDescending()
                 .Select(lvl => new Tab
                 {
@@ -83,13 +67,14 @@ namespace CharSheetFrontend
             {
                 tab.OptionCategories = newTab.OptionCategories;
             }
+
+            // If no tab is selected, select the first one (highest level).
+            levelTabControl.SelectedIndex = int.Max(0, levelTabControl.SelectedIndex);
         }
 
         /// <summary>
-        /// Group options by category, and order the categories by ascending category index.
+        ///  Group options by category, and order the categories by ascending category index.
         /// </summary>
-        /// <param name="options"></param>
-        /// <returns></returns>
         static private List<OptionCategory> CategorizeOptions(IEnumerable<Option> options)
         {
             return options
@@ -102,6 +87,19 @@ namespace CharSheetFrontend
                 .ToList();
         }
 
+        /// <summary>
+        ///  Submit the choice to the server and update the page.
+        /// </summary>
+        async private void SpecControl_Choice(object sender, RoutedEventArgs e)
+        {
+            ChoiceEventArgs args = ((ChoiceEventArgs)e);
+            await _client.PostChoice(_character.CharId, args);
+            LoadEditPageData();
+        }
+
+        /// <summary>
+        ///  Keeps track of the options per character level.
+        /// </summary>
         private class Tab : INotifyPropertyChanged
         {
             public int Level { get; set; }
@@ -115,8 +113,6 @@ namespace CharSheetFrontend
 
                     // We don't bother actually checking if the tab got modified.
                     // The contents are re-generated from scratch anyway.
-                    // The interface is a bit slow; perhaps this contributes to that though.
-                    // If I had time to properly profile the slow updates, this would be my first suspect.
                     NotifyPropertyChanged("OptionCategories");
                 }
             }
@@ -131,50 +127,5 @@ namespace CharSheetFrontend
                 }
             }
         }
-
-        async private void SpecControl_Choice(object sender, RoutedEventArgs e)
-        {
-            // TODO type conversion error handling.
-            ChoiceEventArgs args = ((ChoiceEventArgs)e);
-            string uri = $"api/character/{_character.CharId}/choice?source={args.Origin}&id={args.Id}&choice={args.Choice}";
-            HttpResponseMessage response = await _httpClient.PostAsync(uri, null);
-            LoadEditPageData();
-        }
-    }
-
-    public class EditPageData
-    {
-        public Dictionary<int, List<Option>> Options { get; set; }
-    }
-
-    public class OptionCategory
-    {
-        public string DisplayOriginCategory { get; set; }
-        public List<Option> Options { get; set; }
-    }
-
-    public class Option
-    {
-        public string Id { get; set; }
-        [JsonProperty("display_id")] public string DisplayId { get; set; }
-        [JsonProperty("origin")] public string Origin { get; set; }
-        [JsonProperty("origin_category")] public string OriginCategory { get; set; }
-        [JsonProperty("display_origin_category")] public string DisplayOriginCategory { get; set; }
-        [JsonProperty("origin_category_index")] public int OriginCategoryIndex { get; set; }
-
-        /// <summary>
-        ///  There are different kinds of Spec which need to be parsed differently, so we postpone parsing them.
-        /// </summary>
-        [JsonProperty("spec")] public JObject Spec { get; set; }
-
-        /// <summary>
-        ///  There are different kinds of Choice which need to be parsed differently (the structure depends on the Spec),
-        ///  so we postpone parsing them.
-        /// </summary>
-        [JsonProperty("choice")] public JToken Choice { get; set; }
-
-        public Func<string, string> MkChoice { get; set; } = s => s;
-
-        public bool IsEnabled { get; set; } = true;
     }
 }

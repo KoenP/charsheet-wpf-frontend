@@ -25,8 +25,8 @@ namespace CharSheetFrontend
         public MainWindow()
         {
             InitializeComponent();
-            var httpClient = ((App)Application.Current).HttpClient;
-            NavigationService.Navigate(new SelectCharacterPage(httpClient));
+            var client = ((App)Application.Current).Client;
+            NavigationService.Navigate(new SelectCharacterPage(client));
         }
 
     }

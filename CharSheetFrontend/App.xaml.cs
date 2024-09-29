@@ -11,9 +11,6 @@ namespace CharSheetFrontend
     /// </summary>
     public partial class App : Application
     {
-        public HttpClient HttpClient = new()
-        {
-            BaseAddress = new Uri("http://localhost:8000"),
-        };
+        public CharSheetHttpClient Client { get; } = new();
     }
 }
