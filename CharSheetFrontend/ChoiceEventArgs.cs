@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -11,9 +12,10 @@ namespace CharSheetFrontend
     {
         public readonly string Origin;
         public readonly string Id;
-        public readonly string Choice;
+        public readonly ImmutableList<string> Choice;
 
-        public ChoiceEventArgs(RoutedEvent routedEvent, string origin, string id, string choice)
+        public ChoiceEventArgs(RoutedEvent routedEvent, string origin, string id,
+            ImmutableList<string> choice)
             : base(routedEvent)
         {
             Origin = origin;

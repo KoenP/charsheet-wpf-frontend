@@ -16,17 +16,14 @@ namespace CharSheetFrontend
 
         public override DataTemplate SelectTemplate(object item, DependencyObject container)
         {
-            JToken root = ((Option)item).Spec.Root;
-            switch (root["spectype"].ToObject<string>())
+            switch (((SpecControlArgs)item).Spec)
             {
-                case "list":
+                case Spec.ListSpec listSpec:
                     return ListSpecTemplate;
-                case "unique_from":
-                    return FromSpecTemplate;
-                case "from":
+                case Spec.FromSpec fromSpec:
                     return FromSpecTemplate;
                 default:
-                    return null;
+                    return null; // TODO
             }
         }
     }

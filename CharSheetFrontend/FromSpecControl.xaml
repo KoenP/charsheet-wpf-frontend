@@ -16,9 +16,7 @@
             </ItemsControl.ItemsPanel>
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <local:SpecTemplateSelectorControl
-                        Option="{Binding}"
-                    />
+                    <local:SpecTemplateSelectorControl SpecControlArgs="{Binding}" />
                         <!--Choice="SpecTemplateSelectorControl_Choice"-->
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

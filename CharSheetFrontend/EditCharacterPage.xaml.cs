@@ -79,7 +79,8 @@ namespace CharSheetFrontend
         {
             // TODO type conversion error handling.
             ChoiceEventArgs args = ((ChoiceEventArgs)e);
-            string uri = $"api/character/{_character.CharId}/choice?source={args.Origin}&id={args.Id}&choice={args.Choice}";
+            string formattedChoice = "[" + string.Join(",", args.Choice) + "]";
+            string uri = $"api/character/{_character.CharId}/choice?source={args.Origin}&id={args.Id}&choice={formattedChoice}";
             HttpResponseMessage response = await _httpClient.PostAsync(uri, null);
             LoadEditPageData();
         }

@@ -8,6 +8,10 @@
       d:DesignHeight="450" d:DesignWidth="800"
       Title="EditCharacterPage">
 
+    <Page.Resources>
+        <local:OptionToSpecControlArgsConverter x:Key="OptionToSpecControlArgsConverter" />
+    </Page.Resources>
+
     <TabControl Name="levelTabControl" TabStripPlacement="Left" ItemsSource="{Binding}">
         <TabControl.ItemTemplate>
             <DataTemplate>
@@ -38,7 +42,7 @@
                                                         <!-- TODO replace with control -->
 
                                                         <local:SpecTemplateSelectorControl
-                                                            Option="{Binding}"
+                                                            SpecControlArgs="{Binding Converter={StaticResource OptionToSpecControlArgsConverter}}"
                                                             Choice="SpecControl_Choice"
                                                         />
                                                     </StackPanel>

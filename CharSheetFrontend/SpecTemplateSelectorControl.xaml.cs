@@ -22,14 +22,14 @@ namespace CharSheetFrontend
     {
         ////////////////////////////////////////////////////////////////////////////////
         // Fields.
-        public static readonly DependencyProperty OptionProperty =
-            DependencyProperty.Register("Option", typeof(Option), typeof(SpecTemplateSelectorControl),
-                new PropertyMetadata(null, OnOptionChanged));
+        public static readonly DependencyProperty SpecControlArgsProperty =
+            DependencyProperty.Register("SpecControlArgs", typeof(SpecControlArgs), typeof(SpecTemplateSelectorControl),
+                new PropertyMetadata(null, OnSpecControlArgsChanged));
 
-        public Option Option
+        public SpecControlArgs SpecControlArgs
         {
-            get => (Option)GetValue(OptionProperty);
-            set => SetValue(OptionProperty, value);
+            get => (SpecControlArgs)GetValue(SpecControlArgsProperty);
+            set => SetValue(SpecControlArgsProperty, value);
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -41,15 +41,15 @@ namespace CharSheetFrontend
 
         ////////////////////////////////////////////////////////////////////////////////
         // Methods.
-        private static void OnOptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnSpecControlArgsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var control = (SpecTemplateSelectorControl)d;
-            var newOption = (Option)e.NewValue;
-            control.OnOptionChanged(newOption);
+            var newArgs = (SpecControlArgs)e.NewValue;
+            control.OnSpecControlArgsChanged(newArgs);
         }
-        protected void OnOptionChanged(Option newOption)
+        protected void OnSpecControlArgsChanged(SpecControlArgs newArgs)
         {
-            contentControl.Content = newOption;
+            contentControl.Content = newArgs;
         }
 
         ////////////////////////////////////////////////////////////////////////////////

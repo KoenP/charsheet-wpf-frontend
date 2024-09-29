@@ -26,14 +26,14 @@ namespace CharSheetFrontend
     {
         ////////////////////////////////////////////////////////////////////////////////
         // Fields.
-        public static readonly DependencyProperty OptionProperty =
-            DependencyProperty.Register("Option", typeof(Option), typeof(FromSpecControl),
-                new PropertyMetadata(null, FromSpecControl.OnOptionChanged));
+        public static readonly DependencyProperty SpecControlArgsProperty =
+            DependencyProperty.Register("SpecControlArgs", typeof(SpecControlArgs), typeof(FromSpecControl),
+                new PropertyMetadata(null, FromSpecControl.OnSpecControlArgsChanged));
 
-        public Option Option
+        public SpecControlArgs SpecControlArgs
         {
-            get => (Option)GetValue(OptionProperty);
-            set => SetValue(OptionProperty, value);
+            get => (SpecControlArgs)GetValue(SpecControlArgsProperty);
+            set => SetValue(SpecControlArgsProperty, value);
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -45,57 +45,49 @@ namespace CharSheetFrontend
 
         ////////////////////////////////////////////////////////////////////////////////
         // Methods
-        private static void OnOptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnSpecControlArgsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             // TODO shared superclass with ListSpecControl?
             var control = (FromSpecControl)d;
-            var newOption = (Option)e.NewValue;
-            control.OnOptionChanged(newOption);
+            var newSpecControlArgs = (SpecControlArgs)e.NewValue;
+            control.OnSpecControlArgsChanged(newSpecControlArgs);
         }
 
-        protected void OnOptionChanged(Option newOption)
+        protected void OnSpecControlArgsChanged(SpecControlArgs newArgs)
         {
-            // TODO probably don't need to do that.
-            itemsControl.Items.Clear();
-            var fromSpecOption = newOption.Spec.Root.ToObject<FromSpecOption>();
-
-            // TODO handle "unlimited" case.
-            int num = fromSpecOption.Num.ToObject<int>();
-
-            // I took a shortcut here.
-            // My web frontend handles arbitrary nesting of specs (at least I believe it does).
-            // However in practice this doesn't occur. A from-spec always has a list-spec
-            // as its sub-spec. So here I explicitly assume this to be the case, to save some
-            // time on the implementation.
-            ImmutableList<string> choices = ImmutableList
-                .ToImmutableList(newOption.Choice.ToObject<List<string>>() ?? []);
-
-            
-
-            for (int i = 0; i < num; i++)
+            switch (newArgs.Spec)
             {
-                // TODO maybe change this datatype everywhere.
-                Option option = new Option()
-                {
-                    Choice = i < choices.Count ? choices.ElementAt(i) : null,
-                    Origin = newOption.Origin,
-                    Id = newOption.Id,
-                    Spec = fromSpecOption.Spec,
-                    MkChoice = addToChoices(i, choices),
-                    IsEnabled = i <= choices.Count
-                };
-                itemsControl.Items.Add(option);
+                case Spec.FromSpec fromSpec:
+                    // TODO probably don't need to do that.
+                    itemsControl.Items.Clear();
+
+                    // I took a shortcut here.
+                    // My web frontend handles arbitrary nesting of specs (at least I believe it does).
+                    // However in practice this doesn't occur. A from-spec always has a list-spec
+                    // as its sub-spec. So here I explicitly assume this to be the case, to save some
+                    // time on the implementation.
+                    for (int i = 0; i < fromSpec.Num; i++)
+                    {
+                        // TODO maybe change this datatype everywhere.
+                        SpecControlArgs subArgs = newArgs with {
+                            Choice = i < newArgs.Choice.Count ? [newArgs.Choice[i]] : [],
+                            Spec = fromSpec.SubSpec,
+                            MkChoiceFn = applyChoice(i, newArgs.Choice),
+                            IsEnabled = i <= newArgs.Choice.Count
+                        };
+                        itemsControl.Items.Add(subArgs);
+                    }
+                    break;
             }
         }
 
-        static private Func<string, string> addToChoices(int i, ImmutableList<string> choices)
+        static private Func<string, ImmutableList<string>> applyChoice(int i, ImmutableList<string> choices)
         {
             return choice =>
             {
-                var newChoices = i < choices.Count
+                return i < choices.Count
                     ? choices.SetItem(i, choice)
                     : choices.Add(choice);
-                return "[" + string.Join(",", newChoices) + "]";
             };
         }
 

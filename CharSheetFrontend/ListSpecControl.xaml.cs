@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics;
 using System.Linq;
 using System.Net.Http;
@@ -22,14 +23,14 @@ namespace CharSheetFrontend
     {
         ////////////////////////////////////////////////////////////////////////////////
         // Fields.
-        public static readonly DependencyProperty OptionProperty =
-            DependencyProperty.Register("Option", typeof(Option), typeof(ListSpecControl),
-                new PropertyMetadata(null, OnOptionChanged));
+        public static readonly DependencyProperty SpecControlArgsProperty =
+            DependencyProperty.Register("SpecControlArgs", typeof(SpecControlArgs), typeof(ListSpecControl),
+                new PropertyMetadata(null, OnSpecControlArgsChanged));
 
-        public Option Option
+        public SpecControlArgs SpecControlArgs
         {
-            get => (Option) GetValue(OptionProperty);
-            set => SetValue(OptionProperty, value);
+            get => (SpecControlArgs) GetValue(SpecControlArgsProperty);
+            set => SetValue(SpecControlArgsProperty, value);
         }
 
         ////////////////////////////////////////////////////////////////////////////////
@@ -41,25 +42,46 @@ namespace CharSheetFrontend
 
         ////////////////////////////////////////////////////////////////////////////////
         // Methods.
-        private static void OnOptionChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
+        private static void OnSpecControlArgsChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             var control = (ListSpecControl)d;
-            var newOption = (Option)e.NewValue;
-            control.OnOptionChanged(newOption);
+            var newArgs = (SpecControlArgs)e.NewValue;
+            control.OnSpecControlArgsChanged(newArgs);
         }
 
-        protected void OnOptionChanged(Option newOption)
+        protected void OnSpecControlArgsChanged(SpecControlArgs newArgs)
         {
-            var listSpecOptions = newOption.Spec.Root["list"].ToObject<List<ListSpecOption>>();
-            comboBox.Items.Clear();
-            comboBox.IsEnabled = newOption.IsEnabled;
-            foreach (var listSpecOption in listSpecOptions)
+            switch (newArgs.Spec)
             {
-                comboBox.Items.Add(new ComboBoxItem()
-                {
-                    Content = listSpecOption.Opt,
-                    IsSelected = newOption.Choice != null && listSpecOption.Opt == newOption.Choice.ToObject<string>(), // TODO the != null is a hack
-                });
+                case Spec.ListSpec listSpec:
+                    comboBox.Items.Clear();
+                    comboBox.IsEnabled = newArgs.IsEnabled;
+
+                    // Hack: In my web frontend the chosen element does not need to occur
+                    // in the dropdown options, but for the combo box to work here it
+                    // does. So if our choice does not occur in the list of options,
+                    // we add a disabled option to the top of the dropdown.
+                    var ensureChoiceIsOpt = newArgs.Choice.Except(listSpec.Opts)
+                        .Select(opt => new ComboBoxItem()
+                        {
+                            Content = opt,
+                            IsSelected = true,
+                            IsEnabled = false
+                        });
+
+                    // Normal combo box items.
+                    var regularItems = listSpec.Opts
+                        .Select(opt => new ComboBoxItem()
+                        {
+                            Content = opt,
+                            IsSelected = newArgs.Choice.Contains(opt)
+                        });
+
+                    foreach (var item in ensureChoiceIsOpt.Concat(regularItems))
+                    {
+                        comboBox.Items.Add(item);
+                    }
+                    break;
             }
         }
 
@@ -78,8 +100,9 @@ namespace CharSheetFrontend
         private void comboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             string choice = (string)((ComboBoxItem)((ComboBox)sender).SelectedItem).Content;
-            string newChoice = Option.MkChoice(choice);
-            RaiseEvent(new ChoiceEventArgs(ChoiceEvent, Option.Origin, Option.Id, newChoice));
+            ImmutableList<string> newChoice = SpecControlArgs.MkChoiceFn(choice);
+            RaiseEvent(new ChoiceEventArgs(ChoiceEvent, SpecControlArgs.Origin, SpecControlArgs.Id,
+                newChoice));
             // TODO error handling
         }
     }
