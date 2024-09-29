@@ -16,11 +16,16 @@
             <local:FromSpecControl SpecControlArgs="{Binding}" Choice="SpecControl_Choice" />
         </DataTemplate>
 
+        <DataTemplate x:Key="UnimplementedTemplate">
+            <TextBlock>This control has not yet been implemented.</TextBlock>
+        </DataTemplate>
+
         <!-- Select the appropriate Spec template. -->
         <local:SpecTemplateSelector
             x:Key="SpecTemplateSelector"
             ListSpecTemplate="{StaticResource ListSpecTemplate}"
             FromSpecTemplate="{StaticResource FromSpecTemplate}"
+            UnimplementedTemplate="{StaticResource FromSpecTemplate}"
         />
     </UserControl.Resources>
 

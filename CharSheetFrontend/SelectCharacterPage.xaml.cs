@@ -43,7 +43,7 @@ namespace CharSheetFrontend
 
         ////////////////////////////////////////////////////////////////////////////////
         // Private helper methods.
-        private async void CreateNewCharacter(string name)
+        private async Task CreateNewCharacter(string name)
         {
             if (name.Length != 0)
             {
@@ -56,7 +56,7 @@ namespace CharSheetFrontend
             }
         }
 
-        private async void UpdateCharacterList()
+        private async Task UpdateCharacterList()
         {
             charList.ItemsSource = await _client.GetCharacterList();
         }

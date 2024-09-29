@@ -23,6 +23,26 @@
             <DataTemplate>
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel>
+                        <!-- In the web frontend, I had the level-up dropdown on a separate tab.
+                             In my current design it's a bit difficult to have one tab with different
+                            content and logic to the others, so as a workaround, I just put it on every tab. -->
+                        <TextBlock>Level up as: </TextBlock>
+                        <!-- At the moment the server doesn't provide these, so we need to put them here manually. -->
+                        <ComboBox x:Name="levelUpComboBox" SelectionChanged="LevelUpComboBox_SelectionChanged" HorizontalAlignment="Left" Width="200">
+                            <ComboBoxItem>artificer</ComboBoxItem>
+                            <ComboBoxItem>barbarian</ComboBoxItem>
+                            <ComboBoxItem>bard</ComboBoxItem>
+                            <ComboBoxItem>cleric</ComboBoxItem>
+                            <ComboBoxItem>druid</ComboBoxItem>
+                            <ComboBoxItem>fighter</ComboBoxItem>
+                            <ComboBoxItem>monk</ComboBoxItem>
+                            <ComboBoxItem>paladin</ComboBoxItem>
+                            <ComboBoxItem>ranger</ComboBoxItem>
+                            <ComboBoxItem>rogue</ComboBoxItem>
+                            <ComboBoxItem>sorcerer</ComboBoxItem>
+                            <ComboBoxItem>warlock</ComboBoxItem>
+                            <ComboBoxItem>wizard</ComboBoxItem>
+                        </ComboBox>
                         <TextBlock Style="{StaticResource Header}">You need to make the following choices:</TextBlock>
 
                         <!-- For each character level, we have grouped its options into categories. -->
@@ -39,10 +59,12 @@
                                                     <StackPanel>
                                                         <TextBlock Text="{Binding DisplayId}" />
 
-                                                        <!-- Depending on the "spectype" in the Spec JSON, we need to render different controls -->
+                                                        <!-- Depending on the "spectype" in the Spec JSON, we need to render different controls
+                                                         TODO: The indent level is getting a bit out of hand so I should probably break
+                                                               this up by introducing a custom UserControl. -->
                                                         <local:SpecTemplateSelectorControl
-                                                            SpecControlArgs="{Binding Converter={StaticResource OptionToSpecControlArgsConverter}}"
-                                                            Choice="SpecControl_Choice" />
+                                                        SpecControlArgs="{Binding Converter={StaticResource OptionToSpecControlArgsConverter}}"
+                                                        Choice="SpecControl_Choice" />
                                                     </StackPanel>
                                                 </DataTemplate>
                                             </ItemsControl.ItemTemplate>

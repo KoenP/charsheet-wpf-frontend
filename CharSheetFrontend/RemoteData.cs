@@ -39,4 +39,9 @@ namespace CharSheetFrontend
         /// </summary>
         [JsonProperty("choice")] public required JToken Choice { get; set; }
     }
+    public class Character
+    {
+        [JsonProperty("char_id")] public string CharId { get; set; }
+        [JsonProperty("name")] public string Name { get; set; }
+    }
 }

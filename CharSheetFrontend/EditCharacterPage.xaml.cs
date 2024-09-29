@@ -12,10 +12,14 @@ namespace CharSheetFrontend
     /// </summary>
     public partial class EditCharacterPage : Page
     {
+        ////////////////////////////////////////////////////////////////////////////////
+        // Fields.
         private readonly Character _character;
         private readonly CharSheetHttpClient _client;
         private ObservableCollection<Tab> Tabs = [];
 
+        ////////////////////////////////////////////////////////////////////////////////
+        // Constructor.
         public EditCharacterPage(CharSheetHttpClient client, Character character)
         {
             _character = character;
@@ -25,7 +29,9 @@ namespace CharSheetFrontend
             LoadEditPageData();
         }
 
-        private async void LoadEditPageData()
+        ////////////////////////////////////////////////////////////////////////////////
+        // Private helper methods.
+        private async Task LoadEditPageData()
         {
             // Fetch and parse remote data.
             // I took a bit of a shortcut here and did no proper error handling of JSON parsing.
@@ -72,6 +78,13 @@ namespace CharSheetFrontend
             levelTabControl.SelectedIndex = int.Max(0, levelTabControl.SelectedIndex);
         }
 
+        private async Task GainLevelAs(string characterClass)
+        {
+            await _client.PostGainLevel(_character.CharId, characterClass);
+            levelTabControl.SelectedIndex = -1;
+            await LoadEditPageData();
+        }
+
         /// <summary>
         ///  Group options by category, and order the categories by ascending category index.
         /// </summary>
@@ -87,6 +100,9 @@ namespace CharSheetFrontend
                 .ToList();
         }
 
+        ////////////////////////////////////////////////////////////////////////////////
+        // Event handlers.
+
         /// <summary>
         ///  Submit the choice to the server and update the page.
         /// </summary>
@@ -95,6 +111,17 @@ namespace CharSheetFrontend
             ChoiceEventArgs args = ((ChoiceEventArgs)e);
             await _client.PostChoice(_character.CharId, args);
             LoadEditPageData();
+        }
+        private async void LevelUpComboBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            // We clear the combobox at the end of this method, so we need to make sure that doesn't
+            // cause an infinite recursion.
+            if (e.AddedItems.Count == 1)
+            {
+                string characterClass = (string)(((ComboBoxItem)e.AddedItems[0]).Content);
+                await GainLevelAs(characterClass);
+                ((ComboBox)sender).SelectedIndex = -1;
+            }
         }
 
         /// <summary>
@@ -127,5 +154,6 @@ namespace CharSheetFrontend
                 }
             }
         }
+
     }
 }

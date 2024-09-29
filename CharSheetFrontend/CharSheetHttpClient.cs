@@ -1,10 +1,5 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 using System.Web;
 
 namespace CharSheetFrontend
@@ -14,6 +9,7 @@ namespace CharSheetFrontend
         private HttpClient httpClient = new()
         {
             BaseAddress = new Uri("https://koen.vosjes.cloud"),
+            //BaseAddress = new Uri("http://localhost:8000"),
         };
 
         public async Task<EditPageData> GetEditPageData(string charId)
@@ -40,6 +36,11 @@ namespace CharSheetFrontend
         {
             HttpResponseMessage response = await httpClient.PostAsync($"api/create_character?name={HttpUtility.UrlEncode(name)}", null);
             return await response.Content.ReadAsStringAsync();
+        }
+
+        public async Task PostGainLevel(string charId, string characterClass)
+        {
+            await httpClient.PostAsync($"api/character/{charId}/gain_level?class={characterClass}", null);
         }
     }
 }
