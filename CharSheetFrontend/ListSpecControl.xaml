@@ -8,8 +8,6 @@
              d:DesignHeight="450" d:DesignWidth="800">
     <StackPanel>
         <ComboBox x:Name="comboBox" Width="200" HorizontalAlignment="Left"
-                  SelectionChanged="comboBox_SelectionChanged"
-
-                  />
+                  SelectionChanged="comboBox_SelectionChanged" />
     </StackPanel>
 </UserControl>

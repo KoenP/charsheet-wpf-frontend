@@ -39,6 +39,7 @@ namespace CharSheetFrontend
             InitializeComponent();
             levelTabControl.ItemsSource = Tabs;
             LoadEditPageData();
+            levelTabControl.SelectedIndex = Tabs.Count - 1;
         }
 
         private async void LoadEditPageData()
@@ -114,6 +115,8 @@ namespace CharSheetFrontend
 
                     // We don't bother actually checking if the tab got modified.
                     // The contents are re-generated from scratch anyway.
+                    // The interface is a bit slow; perhaps this contributes to that though.
+                    // If I had time to properly profile the slow updates, this would be my first suspect.
                     NotifyPropertyChanged("OptionCategories");
                 }
             }

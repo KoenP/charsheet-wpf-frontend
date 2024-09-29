@@ -58,22 +58,33 @@ namespace CharSheetFrontend
             switch (newArgs.Spec)
             {
                 case Spec.FromSpec fromSpec:
-                    // TODO probably don't need to do that.
                     itemsControl.Items.Clear();
 
-                    // I took a shortcut here.
-                    // My web frontend handles arbitrary nesting of specs (at least I believe it does).
-                    // However in practice this doesn't occur. A from-spec always has a list-spec
-                    // as its sub-spec. So here I explicitly assume this to be the case, to save some
-                    // time on the implementation.
-                    for (int i = 0; i < fromSpec.Num; i++)
+                    // fromSpec.Num == null indicates that the number of options is
+                    // unbounded (such as adding spells to wizard spellbook).
+                    // In that case, the number of subcontrols we render is the number of 
+                    // choices, plus one.
+                    int num = fromSpec.Num ?? (newArgs.Choice.Count + 1);
+
+                    for (int i = 0; i < num; i++)
                     {
-                        // TODO maybe change this datatype everywhere.
                         SpecControlArgs subArgs = newArgs with {
+                            // Select the relevant choice for the sub-spec.
                             Choice = i < newArgs.Choice.Count ? [newArgs.Choice[i]] : [],
+
+                            // Pass through the sub-spec.
                             Spec = fromSpec.SubSpec,
+
+                            // To fire a Choice event, the sub-spec control should insert it
+                            // at the correct point in the list of choices.
                             MkChoiceFn = applyChoice(i, newArgs.Choice),
-                            IsEnabled = i <= newArgs.Choice.Count
+
+                            // We enable the subcontrols that have a registered choice,
+                            // plus one blank one (if it exists).
+                            IsEnabled = i <= newArgs.Choice.Count,
+
+                            // Iff ths is a unique_from spec, disable the already-chosen values.
+                            DisabledOptions = fromSpec.Unique ? newArgs.Choice : []
                         };
                         itemsControl.Items.Add(subArgs);
                     }

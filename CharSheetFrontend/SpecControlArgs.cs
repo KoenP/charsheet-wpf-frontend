@@ -16,7 +16,8 @@ namespace CharSheetFrontend
         Spec Spec,
         ImmutableList<string> Choice,
         Func<string,string> MkChoiceFn,
-        bool IsEnabled
+        bool IsEnabled,
+        ImmutableList<string> DisabledOptions
     )
     {
         public static SpecControlArgs FromOption(Option option)
@@ -27,7 +28,8 @@ namespace CharSheetFrontend
                 Spec.FromJToken(option.Spec),
                 JTokenToChoice(option.Choice),
                 choice => choice,
-                true
+                true,
+                []
             );
         }
 
@@ -48,7 +50,7 @@ namespace CharSheetFrontend
     public record Spec
     {
         public record ListSpec(List<string> Opts) : Spec();
-        public record FromSpec(int Num, bool Unique, Spec SubSpec) : Spec();
+        public record FromSpec(int? Num, bool Unique, Spec SubSpec) : Spec();
 
         public static Spec FromJToken(JObject jsonSpec)
         {
@@ -58,17 +60,29 @@ namespace CharSheetFrontend
                     return new ListSpec(jsonSpec.Root["list"].ToObject<List<ListSpecOption>>()
                         .Select(opt => opt.Opt).ToList());
                 case "from":
-                    return new FromSpec(jsonSpec.Root["num"].ToObject<int>(),
+                    return new FromSpec(numOrUnlimited(jsonSpec.Root["num"]),
                         false,
                         FromJToken(jsonSpec.Root["spec"].ToObject<JObject>())
                     );
                 case "unique_from":
-                    return new FromSpec(jsonSpec.Root["num"].ToObject<int>(),
+                    return new FromSpec(numOrUnlimited(jsonSpec.Root["num"]),
                         true,
                         FromJToken(jsonSpec.Root["spec"].ToObject<JObject>())
                     );
                 default:
                     return null; // TODO
+            }
+        }
+
+        private static int? numOrUnlimited(JToken jToken)
+        {
+            switch (jToken.Type)
+            {
+                case JTokenType.Integer:
+                    return jToken.ToObject<int?>();
+                default:
+                    // Note: this value should be the string "unlimited", but I'm not checking explicitly here.
+                    return null;
             }
         }
     }

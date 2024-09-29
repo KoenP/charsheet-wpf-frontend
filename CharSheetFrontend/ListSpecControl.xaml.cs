@@ -61,6 +61,7 @@ namespace CharSheetFrontend
                     // in the dropdown options, but for the combo box to work here it
                     // does. So if our choice does not occur in the list of options,
                     // we add a disabled option to the top of the dropdown.
+                    // So ensureChoiceIsOpt is either empty or a singleton.
                     var ensureChoiceIsOpt = newArgs.Choice.Except(listSpec.Opts)
                         .Select(opt => new ComboBoxItem()
                         {
@@ -74,7 +75,14 @@ namespace CharSheetFrontend
                         .Select(opt => new ComboBoxItem()
                         {
                             Content = opt,
-                            IsSelected = newArgs.Choice.Contains(opt)
+                            IsSelected = newArgs.Choice.Contains(opt),
+
+                            // The server is currently a bit inconsistent in how uniqueness is handled.
+                            // Some cases need to be handled on the frontend, others are handled on the backend.
+                            // This causes a bit of inconsistency in the UI at the moment.
+                            // When it's handled on the backend, a disabled option just does not show up.
+                            // When handled on the frontend, it's greyed-out.
+                            IsEnabled = !newArgs.DisabledOptions.Contains(opt)
                         });
 
                     foreach (var item in ensureChoiceIsOpt.Concat(regularItems))

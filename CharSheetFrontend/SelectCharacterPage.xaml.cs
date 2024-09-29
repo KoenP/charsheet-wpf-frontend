@@ -61,7 +61,7 @@ namespace CharSheetFrontend
         {
             if (name.Length != 0)
             {
-                string uuid = await httpClient.GetStringAsync($"api/new_character?name={HttpUtility.UrlEncode(name)}");
+                string uuid = await httpClient.GetStringAsync($"api/create_character?name={HttpUtility.UrlEncode(name)}");
                 Character character = new Character() { CharId = uuid, Name = name };
                 NavigationService.Navigate(new EditCharacterPage(httpClient, character));
             } else
