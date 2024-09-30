@@ -27,8 +27,7 @@ namespace CharSheetFrontend
 
         public async Task PostChoice(string charId, ChoiceEventArgs args)
         {
-
-            string uri = $"api/character/{charId}/choice?source={args.Origin}&id={args.Id}&choice={args.Choice}";
+            string uri = $"api/character/{charId}/choice?source={HttpUtility.UrlEncode(args.Origin)}&id={HttpUtility.UrlEncode(args.Id)}&choice={HttpUtility.UrlEncode(args.Choice)}";
             await httpClient.PostAsync(uri, null);
         }
 

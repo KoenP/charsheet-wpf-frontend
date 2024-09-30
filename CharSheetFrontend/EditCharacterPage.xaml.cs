@@ -66,6 +66,8 @@ namespace CharSheetFrontend
             foreach (var newTab in newTabs.Take(newTabs.Count() - Tabs.Count).Reverse())
             {
                 Tabs.Insert(0, newTab);
+                // If new tabs are added, we probably want to select those.
+                levelTabControl.SelectedIndex = 0;
             }
 
             // Update the remaining tabs.
